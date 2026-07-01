@@ -1,22 +1,23 @@
 const { Client, GatewayIntentBits } = require('discord.js');
-const { OpenAI } = require('openai');
 
 const client = new Client({ 
     intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] 
 });
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
-client.on('messageCreate', async (message) => {
+client.on('messageCreate', (message) => {
     if (message.author.bot) return;
     
-    // البوت يرد فقط إذا تم عمل Mention له
+    // البوت سيرد إذا تم عمل منشن له
     if (message.mentions.has(client.user)) {
-        const response = await openai.chat.completions.create({
-            model: "gpt-3.5-turbo",
-            messages: [{ role: "user", content: message.content }],
-        });
-        message.reply(response.choices[0].message.content);
+        const text = message.content.toLowerCase();
+        
+        if (text.includes("كيفك")) {
+            message.reply("أنا بخير يا Bato، كيف أقدر أساعدك اليوم؟");
+        } else if (text.includes("اسمك")) {
+            message.reply("اسمي Void، وأنا جاهز للعمل!");
+        } else {
+            message.reply("أنا بوت يعمل بكامل طاقتي، اسألني أي شيء مبرمج عليّ!");
+        }
     }
 });
 
