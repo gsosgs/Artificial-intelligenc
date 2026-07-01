@@ -1,22 +1,23 @@
 const { Client, GatewayIntentBits } = require('discord.js');
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 const client = new Client({ 
     intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] 
 });
 
-client.on('messageCreate', (message) => {
+// ضع الـ API Key الخاص بك هنا أو في المتغيرات
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
-    
-    // البوت سيرد إذا تم عمل منشن له
     if (message.mentions.has(client.user)) {
-        const text = message.content.toLowerCase();
-        
-        if (text.includes("كيفك")) {
-            message.reply("أنا بخير يا Bato، كيف أقدر أساعدك اليوم؟");
-        } else if (text.includes("اسمك")) {
-            message.reply("اسمي Void، وأنا جاهز للعمل!");
-        } else {
-            message.reply("أنا بوت يعمل بكامل طاقتي، اسألني أي شيء مبرمج عليّ!");
+        try {
+            const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+            const result = await model.generateContent(message.content);
+            const response = await result.response;
+            message.reply(response.text());
+        } catch (error) {
+            message.reply("عذراً، حدث خطأ تقني. تأكد من الـ API Key.");
         }
     }
 });
